@@ -31,6 +31,7 @@ library(eurostat)
 
 
 # 1 - Data generating process
+
 # Simulate an AR(i), a MA(i) and an ARMA(i,j) study the correlogram,
 # where you must choose i and j as
 # positive integers, while the parameters can be positive or negative
