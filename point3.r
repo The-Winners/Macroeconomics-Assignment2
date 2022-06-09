@@ -71,17 +71,19 @@ data <- list(
 data <- data[!is.na(data)]
 
 
-acf_list <- list(
-    GNP, GNPC96, GNP_GDP_ratio, INDPRO, emp, unemp,
-    GNP_defletor, cons_prices, wages, real_wages,
-    Money_stock, Velocity, bond_yield, common_stock_prices,
-    GNP_sim_rw_drift, GNP_sim_rw_drift_rw
-)
+acf_list <- matrix(NA, nrow = 14, ncol = 6)
+# compute the autocorrelation function of the data using acf()
+
+for (i in 1:length(data)) {
+    acf_list[i, ] <- acf(data[[i]], lag.max = 6, plot = FALSE)$acf[-1]
+}
+
+View(acf_list)
 
 # Apply ARMA model to the data
 # create a cycle and apply ARMA to each variable
 for (i in 1:length(data)) {
-    arma_i <- arima(data[[i]], order = c(1, 0, 0), n = sim.num)
+    arma_i <- arima(data[[3]], order = c(1, 0, 0), n = sim.num)
     # Compute autocorrelation function
     acf_list[[i]] <- acf(data[[i]], lag.max = 6)
 }
