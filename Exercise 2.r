@@ -17,7 +17,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # Install packages
 packages <- c("tidyverse", "rsdmx", "eurostat", "tbl2xts", 
               "tidyquant", "BCDating", "pwt10", "dplyr",
-              "stargazer", "car", "forecast", "tseries", "quantmod","eurostat")
+              "stargazer", "car", "forecast", "tseries", "quantmod", "eurostat")
 new.packages <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 invisible(lapply(packages, library, character.only = TRUE))
