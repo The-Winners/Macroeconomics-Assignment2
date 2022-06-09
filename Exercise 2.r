@@ -2,8 +2,7 @@
 # Author: The Winners
 # Date: 10/10/2017
 # library
-library(forecast)
-library(tseries)
+
 
 # PRELIMINARY OPERATIONS
 
