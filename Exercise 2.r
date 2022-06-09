@@ -62,7 +62,9 @@ plotcorr=function(ts,main){
   pacf(ts, main=main)
 }
 
-#Simulate an AR(1) with certain parameters
+
+# INTERPRETATION 1
+#Simulate an AR(1) with a positive parameter
 
 ar=c(0.3)
 ma=c(0)
@@ -75,44 +77,64 @@ stargazer(artsfit1, type="text")
 
 plotcorr(arts1,main="AR(1)")
 
-#Simulate an AR(1) with certain parameters
+#Simulate an AR(1) with a positive parameter
 
 ar=c(0.5)
 ma=c(0)
 order=c(1,0,0)
 
 
-arts1=arma(ar,ma)
-artsfit1 = armafit(arts1, order)
-stargazer(artsfit1, type="text")
+arts2=arma(ar,ma)
+artsfit2 = armafit(arts2, order)
+stargazer(artsfit2, type="text")
 
-plotcorr(arts1,main="AR(1)")
+plotcorr(arts2,main="AR(1)")
 
-#Simulate an AR(1) with certain parameters
+#Simulate an AR(1) with a negative parameter
 
 ar=c(-0.3)
 ma=c(0)
 order=c(1,0,0)
 
 
-arts1=arma(ar,ma)
-artsfit1 = armafit(arts1, order)
-stargazer(artsfit1, type="text")
+arts3=arma(ar,ma)
+artsfit3 = armafit(arts3, order)
+stargazer(artsfit3, type="text")
 
-plotcorr(arts1,main="AR(1)")
+plotcorr(arts3,main="AR(1)")
 
-#Simulate an AR(1) with certain parameters
+#Simulate an AR(1) with a negative parameter
 
 ar=c(-0.5)
 ma=c(0)
 order=c(1,0,0)
 
 
+arts4=arma(ar,ma)
+artsfit4 = armafit(arts4, order)
+stargazer(artsfit4, type="text")
+
+plotcorr(arts4,main="AR(1)")
+
+#Simulate an MA(1) with a positive parameter
+
+ar=c(0)
+ma=c(0.2)
+order=c(0,0,1)
+
+
 arts1=arma(ar,ma)
 artsfit1 = armafit(arts1, order)
 stargazer(artsfit1, type="text")
 
 plotcorr(arts1,main="AR(1)")
+
+
+
+
+
+
+
 
 
 #Simulate an AR(4) with certain parameters
