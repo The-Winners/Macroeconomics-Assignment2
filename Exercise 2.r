@@ -374,22 +374,29 @@ rmse=rmse(dtb3test,fitpred$pred)
 
 maelist=c()
 rmselist=c()
+aiclist=c()
+biclist=c()
 for (c in 1:nrow(ordercomb)){
   order=ordercomb[c,]
   fit=armafit(dtb3train,order)
   fitpred=predict(fit,n.ahead=length(dtb3test), interval="confidence")
   maelist[c]=mae(dtb3test,fitpred$pred)
   rmselist[c]=rmse(dtb3test,fitpred$pred)
+  aiclist[c]=-1*AIC(fit)
+  biclist[c]=-1*BIC(fit)
 }
 
-errorlist=cbind(maelist, rmselist)
+errorlist=cbind(maelist, rmselist, aiclist, biclist)
 which.min(errorlist[,1])
 which.min(errorlist[,2])
+which.min(errorlist[,3])
+which.min(errorlist[,4])
 
-which.min(errorlist)
 
 plot(maelist, type= "h")
 plot(rmselist, type="h")
+plot(aiclist, type= "h")
+plot(biclist, type="h")
 
 
 
