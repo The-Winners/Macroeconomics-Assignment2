@@ -352,7 +352,38 @@ plotcorr(DGS2, main="DGS2")
 plotcorr(DGS10, main="DGS10")
 
 #Fit the models using an ARMA(1,1)
-for (x in 1:)
+ordercomb=NULL
+ordercomb=matrix(NA,nrow=25,ncol=3)
+for (z in 1:5){
+  for (x in 1:5){
+    ordercomb[x+5*(z-1),]=c(x,0,z)
+  }
+}
+
+ordercomb
+
+dtb3train=DTB3[1:(length(DTB3)*0.8)]
+dtb3test=DTB3[((length(DTB3)*0.8)+1):length(DTB3)]
+
+order=ordercomb[1,]
+fit=armafit(dtb3train,order)
+fitpred=predict(fit,n.ahead=length(dtb3test), interval="confidence")
+mae=mae(dtb3test,fitpred$pred)
+rmse=rmse(dtb3test,fitpred$pred)
+
+
+maelist=c()
+rmselist=c()
+for (c in 1:nrow(ordercomb)){
+  order=ordercomb[c,]
+  fit=armafit(dtb3train,order)
+  fitpred=predict(fit,n.ahead=length(dtb3test), interval="confidence")
+  maelist[c]=mae(dtb3test,fitpred$pred)
+  rmselist[c]=rmse(dtb3test,fitpred$pred)
+}
+
+errorlist=cbind(maelist,rmselist)
+which.min(errorlist)
 
 
 order=c(3,0,1)
