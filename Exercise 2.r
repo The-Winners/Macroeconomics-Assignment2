@@ -116,6 +116,7 @@ stargazer(artsfit4, type="text")
 
 plotcorr(arts4,main="AR(1)")
 
+
 #Simulate an MA(1) with a positive parameter
 
 ar=c(0)
