@@ -1,4 +1,6 @@
-# Macroeconomics-Assignment2
+## Macroeconomics-Assignment2
+
+
 ## Data Generating Process
 Simulate an AR(i), a MA(i) and an ARMA(i,j) study the correlogram, where you must choose i and j as
 positive integers, while the parameters can be positive or negative. Repeat the experiment for two i and two
@@ -23,7 +25,8 @@ It is your choice using data in level in log level or detrend them. Comment the 
 For each variable plot the original data (chose whether in logs) and ACF/PACF, the time detrended data
 and the data without stochastic trend.
 Test formally the stationarity of you series with one or two tests at your choice.
-## 4 Cointegration
+-------------------
+## Cointegration
 Download from FRED the following interest rates: 3 Months Treasury Bill, 2 Years Treasury Bonds and 10
 Years Treasury Bonds.
 The difference between 10YR and 3M is known as term spread. It is a proxy of the risk in holding longer
@@ -32,4 +35,4 @@ The difference between 10YR and 2YR is considered in the US an good indicator of
 (https://www.chicagofed.org/publications/chicago-fed-letter/2018/404).
 Study the stationarity of the series you download and verify any cointegration relationship in the two cases.
 Comment your results.
-2
+-------------------
