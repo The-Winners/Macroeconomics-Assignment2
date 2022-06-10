@@ -305,11 +305,19 @@ cbind(maemean,rmsemean)
 ##### POINT 4 ####
 ##################
 
+# ----
 
+rates <- c("DTB3","DGS2","DGS10")
+for (i in 1:length(rates)) {
+  getSymbols(rates[i], src = "FRED")
+}
+plot(DTB3)
 
+termspread=DGS10-DTB3
+plot(termspread)
 
-
-
+indicator=DGS10-DGS2
+plot(indicator)
 
 
 
