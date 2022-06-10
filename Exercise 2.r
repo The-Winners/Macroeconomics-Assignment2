@@ -143,14 +143,14 @@ matsfit4 = armafit(mats4, order)
 stargazer(matsfit4, type="text")
 plotcorr(mats4,main="MA(1)neg.b")
 
-# Simulate an ARMA(2,2) with certain parameters
-ar=c(0.5,-0.3)
-ma=c(0.2,-0.2)
-order=c(2,0,2)
+# Simulate an ARMA(1,1) with certain parameters
+ar=c(0.999999)
+ma=c(0.5)
+order=c(1,0,1)
 armats1=arma(ar,ma)
 armatsfit1 = armafit(armats1, order)
 stargazer(armatsfit1, type="text")
-plotcorr(armats1,main="ARMA(2,2)")
+plotcorr(armats1,main="ARMA(1,1)")
 
 # Simulate an ARMA(2,2) with certain parameters
 ar=c(0.3,-0.5)
@@ -268,13 +268,15 @@ cbind(maearma,rmsearma)
 
 #Do it for a naive forecast
 naivefit=naive(armatstest, h=500)
+plot(naivefit)
 naivefitpred=predict(naivefit,n.ahead=500, interval="confidence")
-maenaive=mae(armatstest,naivefitpred$pred)
-rmsenaive=rmse(armatstest,naivefitpred$pred)
+maenaive=mae(armatstest,naivefitpred$fitted[-c(1)])
+rmsenaive=rmse(armatstest,naivefitpred$fitted[-c(1)])
 cbind(maenaive,rmsenaive)
 
 #Do it for a mean forecast
 meanfit=lm(armatstrain ~ 1)
+plot(c(armatstrain,meanfit$fitted.values))
 meanfitpred=predict(meanfit,n.ahead=500, interval="confidence")
 maemean=mae(armatstest,meanfit[["coefficients"]])
 rmsemean=rmse(armatstest,meanfit[["coefficients"]])
@@ -307,17 +309,54 @@ cbind(maemean,rmsemean)
 
 # ----
 
+
+# Download treasury rates from Fred
 rates <- c("DTB3","DGS2","DGS10")
 for (i in 1:length(rates)) {
   getSymbols(rates[i], src = "FRED")
 }
 plot(DTB3)
 
+#Clean the time series from days of market closure
+nas=c(which(is.na(DTB3)))
+for (i in 1:length(nas)){
+  DTB3[nas[i]]=DTB3[nas[i]-1]
+}
+
+nas2=c(which(is.na(DGS2)))
+for (i in 1:length(nas2)){
+  DGS2[nas2[i]]=DGS2[nas2[i]-1]
+}
+
+nas3=c(which(is.na(DGS10)))
+for (i in 1:length(nas3)){
+  DGS10[nas3[i]]=DGS10[nas3[i]-1]
+}
+
+
+
+
+
+#Construct term spread
+
 termspread=DGS10-DTB3
 plot(termspread)
 
+#Construct the indicator for an advent the recession
 indicator=DGS10-DGS2
 plot(indicator)
 
+
+plotcorr(DTB3, main="DTB3")
+plotcorr(DGS2, main="DGS2")
+plotcorr(DGS10, main="DGS10")
+
+#Fit the models using an ARMA(1,1)
+for (x in 1:)
+
+
+order=c(3,0,1)
+dtb3fit=armafit(DTB3, order)
+stargazer(dtb3fit, type="text")
 
 
