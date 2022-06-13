@@ -20,7 +20,7 @@ packages <- c("tidyverse", "rsdmx", "eurostat", "tbl2xts",
               "tidyquant", "BCDating", "pwt10", "dplyr",
               "stargazer", "car", "forecast", "tseries",
               "quantmod", "eurostat", "stargazer",
-              "skedastic","Metrics","mFilter", "aTSA","lmtest","xts")
+              "skedastic","Metrics","mFilter", "aTSA","lmtest","xts", "prediction")
 new.packages <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 invisible(lapply(packages, library, character.only = TRUE))
