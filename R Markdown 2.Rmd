@@ -8,7 +8,7 @@ output: html_document
 TITLE: Assigment_2 
 
 
-```{r}
+```{r operations, message=FALSE}
 # PRELIMINARY OPERATIONS
 
 # Clear the variables
@@ -45,9 +45,10 @@ set.seed(1111)
 ```
 
 We define functions:
-- to generate a general ARMA time series of order i,j so that it could be also an AR or an MA
-- to fit the ARMA function
-- to plot the different correlations
+
+* to generate a general ARMA time series of order i,j so that it could be also an AR or an MA
+* to fit the ARMA function
+* to plot the different correlations
 
 ```{r.2a}
 arma=function(ar,ma){
