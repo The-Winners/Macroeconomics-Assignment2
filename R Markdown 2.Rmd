@@ -259,17 +259,18 @@ armatsnew=arma(ar,ma)
 acf(armatsnew)
 ```
 
-
-
-uno è train e l'altro è test 
-#Divide the time series in 2 parts
+And then we divide our sample time series in two parts: the train set for estimation and the test set to forecast
+```{r.10a}
 n=length(armatsnew)/2
 armatstrain=armatsnew[1:n]
 armatstest=armatsnew[(n+1):length(armatsnew)]
+```
 
-fitting ar 1 sul train e paramertri per predire e poi predizioni calcolo errori MAE e 
+After that, we fit AR(1), ARMA(2,1), naive forecast, mean forecast on the train set to obtain parameters to predict. On this predictive we calculate the errors using MAE and RMSE to compare values. 
 
-#Model fitting with an AR(1), ARMA(2,1), naive forecast, mean forecast
+```{r11.a}
+
+#Model fitting with an AR(1), 
 order=c(1,0,0)
 arfit=armafit(armatstrain,order)
 plot(arfit$coef)
@@ -279,9 +280,7 @@ maear=mae(armatstest,arfitpred$pred)
 rmsear=rmse(armatstest,arfitpred$pred)
 cbind(maear,rmsear)
 
-
-
-#Do it for ARMA(2,1)
+#Model fitting with ARMA(2,1)
 order=c(2,0,1)
 armafitting=armafit(armatstrain,order)
 plot(armafitting$coef)
@@ -291,9 +290,8 @@ maearma=mae(armatstest,armafitpred$pred)
 rmsearma=rmse(armatstest,armafitpred$pred)
 cbind(maearma,rmsearma)
 
-errore piu basso
 
-#Do it for a naive forecast
+#Model fitting with naive forecast
 naivefit=naive(armatstest, h=500)
 plot(naivefit)
 naivefitpred=predict(naivefit,n.ahead=500, interval="confidence")
@@ -301,13 +299,15 @@ maenaive=mae(armatstest,naivefitpred$fitted[-c(1)])
 rmsenaive=rmse(armatstest,naivefitpred$fitted[-c(1)])
 cbind(maenaive,rmsenaive)
 
-#Do it for a mean forecast
+#Model fitting with mean forecast
 meanfit=lm(armatstrain ~ 1)
 plot(c(armatstrain,meanfit$fitted.values))
 meanfitpred=predict(meanfit,n.ahead=500, interval="confidence")
 maemean=mae(armatstest,meanfit[["coefficients"]])
 rmsemean=rmse(armatstest,meanfit[["coefficients"]])
 cbind(maemean,rmsemean)
+
+```
 
 
 
