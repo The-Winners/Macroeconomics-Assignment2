@@ -334,3 +334,43 @@ theUltimateFunction <- function(first_diff) {
 theUltimateOutput <- theUltimateFunction(first_diff)
 # table 3 - the sample autocorrelation of the residuals of the best ARIMA model
 View(theUltimateOutput)
+
+# perform augmented Dickey-Fuller test  on the first_diff data
+# to check if the data is stationary
+# define the vector containing the results of the Augmented Dickey-Fuller test
+# for each element of the data
+adfTest <- function(data) {
+    test_results <- c()
+    for (i in 1:length(data)) {
+        test_results <- c(test_results, adf.test(data[[i]])$p.value)
+    }
+    # table 4 - the results of the Augmented Dickey-Fuller test
+    return(test_results)
+}
+# call the function to perform the Augmented Dickey-Fuller test
+adf_results <- adfTest(data)
+alpha <- 0.05
+# if the data is stationary, the Augmented Dickey-Fuller test will return a p-value
+# less than alpha, otherwise the data is non-stationary
+adf_stationry_results <- c()
+for (i in 1:length(adf_results)) {
+    if (adf_results[i] < alpha) {
+        adf_stationry_results <- c(adf_stationry_results, "Stationary")
+    } else {
+        adf_stationry_results <- c(adf_stationry_results, "Non-stationary")
+    }
+}
+adf_matrix_output <- matrix(NA, nrow = length(first_diff), ncol = 2)
+for (i in 1:length(first_diff)) {
+    adf_matrix_output[i, ] <- c(adf_results[i], adf_stationry_results[[i]])
+}
+# give the row names to the output matrix
+rownames(adf_matrix_output) <- c(
+    "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
+    "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
+    "Money stock", "Velocity", "Bond yield", "Common stock prices",
+    "Random walk with drift"
+)
+# give the column names to the output matrix
+colnames(adf_matrix_output) <- c("p-value", "Stationary or Non-stationary")
+View(adf_matrix_output)
