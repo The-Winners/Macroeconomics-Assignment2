@@ -348,7 +348,7 @@ adfTest <- function(data) {
     return(test_results)
 }
 # call the function to perform the Augmented Dickey-Fuller test
-adf_results <- adfTest(data)
+adf_results <- adfTest(first_diff)
 alpha <- 0.05
 # if the data is stationary, the Augmented Dickey-Fuller test will return a p-value
 # less than alpha, otherwise the data is non-stationary
