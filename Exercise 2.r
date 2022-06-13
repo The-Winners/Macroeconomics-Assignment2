@@ -592,4 +592,12 @@ adf.test(DGS10)
 #We conclude that all three time series are stationary
 
 
+#Now check stationarity of the term spread and the recession indicator
+
+modelterm=lm(DGS10 ~ DTB3[2087:length(DTB3)])
+adf.test(as.numeric(modelterm$residuals))
+
+modelterm2=lm(DGS10[3761:length(DGS10)] ~ DGS2)
+adf.test(as.numeric(modelterm2$residuals))
+
 
