@@ -96,10 +96,11 @@ generateTable <- function(data) {
 }
 
 
-# table 1: sample autocorrelation of the data
+# table 1: Sample autocorrelation of the data
 acf_autcorr <- generateTable(data)
+View(acf_autcorr)
 
-# table 2: autocorrelation of the first difference of the data
+# Compute the autocorrelation of the first difference of the data
 # take the first difference of each element of the data
 # list of the first differences with the same length as the original data
 
@@ -123,21 +124,13 @@ firstDiff <- function(data) {
 }
 # recall the function to compute the first difference of the data
 first_diff <- firstDiff(data)
-View(first_diff)
 
-# recall the function to compute the autocorrelation of the first difference of the data
+# Table2:  the autocorrelation of the first difference of the data
 acf_autcorr_diff <- generateTable(first_diff)
 View(acf_autcorr_diff)
 
-# table 3: Sample autocorrelation of the deviation of the data
-# compute the residuals of the data from the prediction of the fitted model
-residuals <- function(data, predicted) {
-    resid <- list()
-    for (i in 1:(length(data))) {
-        resid[[i]] <- (data[[i]] - predicted[i])^2
-    }
-    return(resid)
-}
+
+
 
 
 # define a function AIC_score to compute the AIC of the fitted model
@@ -339,4 +332,5 @@ theUltimateFunction <- function(first_diff) {
 }
 
 theUltimateOutput <- theUltimateFunction(first_diff)
+# table 3 - the sample autocorrelation of the residuals of the best ARIMA model
 View(theUltimateOutput)
