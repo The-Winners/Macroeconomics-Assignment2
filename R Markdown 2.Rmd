@@ -8,7 +8,7 @@ output: html_document
 TITLE: Assigment_2 
 
 
-```{r}
+```{r 0}
 # PRELIMINARY OPERATIONS
 
 # Clear the variables
@@ -40,7 +40,7 @@ library(eurostat)
 
 We simulate an AR(i), a MA(i) and an ARMA(i,j) study the correlogram, where we choose i and j as positive integers, while the parameters can be positive or negative.
 
-```{r.1a}
+```{r 1a}
 set.seed(1111)
 ```
 
@@ -49,7 +49,7 @@ We define functions:
 - to fit the ARMA function
 - to plot the different correlations
 
-```{r.2a}
+```{r 2a}
 arma=function(ar,ma){
   armats <- arima.sim(model=list(ar=ar,ma=ma), n=1000)
   armats
@@ -72,7 +72,7 @@ plotcorr=function(ts,main){
 
 We simulate four AR(1): two with positive parameters and the other two with negative parameters
 
-```{r.3a}
+```{r 3a}
 #Simulate an AR(1) with a positive parameter
 ar=c(0.3)
 ma=c(0)
@@ -112,7 +112,7 @@ plotcorr(arts4,main="AR(1)neg.b")
 
 We simulate four MA(1): two with positive parameters and the other two with negative parameters
 
-```{r.4a}
+```{r 4a}
 #Simulate an MA(1) with a positive parameter
 ar=c(0)
 ma=c(0.2)
@@ -152,7 +152,7 @@ plotcorr(mats4,main="MA(1)neg.b")
 
 After simulating AR(1) and MA(1), we simulate one ARMA(1,1) and one ARMA(2,2).
 
-```{r.5a}
+```{r 5a}
 # Simulate an ARMA(1,1) with certain parameters
 ar=c(0.999999)
 ma=c(0.5)
@@ -178,7 +178,7 @@ We simulate two AR():
 1. AR(4)  with two positive parameters and two with negative parameters
 2. AR(6) with three positive parameters and three with negative parameters
 
-```{r.6a}
+```{r 6a}
 #Simulate an AR(4) with certain parameters
 ar=c(0.3,0.25,-0.22,-0.15)
 ma=c(0)
@@ -202,7 +202,7 @@ We simulate two MA():
 1. MA(4) with two positive parameters and two negative parameters
 2. MA(6) with three positive parameters and three negative parameters
 
-```{r.7a}
+```{r 7a}
 # Simulate an MA(4) with certain parameters
 ar=c(0)
 ma=c(0.2,0.2,-0.2,-0.2)
@@ -224,7 +224,7 @@ plotcorr(mats2,main="MA(6)")
 
 After simulating AR() and MA(), we simulate one ARMA(3,1) and one ARMA(1,3).
 
-```{r.8a}
+```{r 8a}
 
 # Simulate an ARMA(3,1) with certain parameters
 ar=c(0.2,0.2,-0.2)
@@ -250,7 +250,7 @@ plotcorr(armats2,main="ARMA(1,3)")
 ## Q2: Forecasting Comparison
 
 We decided to simulate an ARMA(2,1) as a baseline time series 
-```{r.9a}
+```{r 9a}
 # Simulating an arma(2,1) as a baseline time series
 ar=c(0.43,0.37)
 ma=c(0.6)
@@ -260,7 +260,7 @@ acf(armatsnew)
 ```
 
 And then we divide our sample time series in two parts: the train set for estimation and the test set to forecast
-```{r.10a}
+```{r 10a}
 n=length(armatsnew)/2
 armatstrain=armatsnew[1:n]
 armatstest=armatsnew[(n+1):length(armatsnew)]
@@ -268,7 +268,7 @@ armatstest=armatsnew[(n+1):length(armatsnew)]
 
 After that, we fit AR(1), ARMA(2,1), naive forecast, mean forecast on the train set to obtain parameters to predict. On this predictive we calculate the errors using MAE and RMSE to compare values. 
 
-```{r11.a}
+```{r 11.a}
 
 #Model fitting with an AR(1), 
 order=c(1,0,0)
@@ -308,6 +308,403 @@ rmsemean=rmse(armatstest,meanfit[["coefficients"]])
 cbind(maemean,rmsemean)
 
 ```
+
+
+## Q3: Nelson Plosser data
+```{r 3aa, echo=FALSE}
+# load package:
+library(prediction)
+```
+
+
+We download the same series (data of Nelson Plosser) from FRED website and we decide to transform the data in log level
+```{r 3b}
+nipa <- c(
+    "GNP", "GNPC96", "GNPGDPUSA156NUPN",
+    "INDPRO", "CE16OV", "UNRATE", "A001RI1Q225SBEA",
+    "FPCPITOTLZGUSA", "CES0500000003", "M2REAL", "M2V",
+    "DAAA", "M1125AUSM343NNBR"
+)
+for (i in 1:length(nipa)) {
+    getSymbols(nipa[i], src = "FRED")
+}
+
+# Take the LOG
+GNP <- log(GNP)
+GNPC96 <- log(GNPC96) # Real GNP at cosntant price level 1996
+GNP_GDP_ratio <- log(GNPGDPUSA156NUPN)
+INDPRO <- log(INDPRO) # industrial production
+emp <- log(CE16OV) # Employment in industry
+unemp <- log(UNRATE) # Unemployment rate
+GNP_defletor <- log(A001RI1Q225SBEA) # GNP deflator
+cons_prices <- log(FPCPITOTLZGUSA) # Consumer prices
+wages <- log(CES0500000003) # avg hourly wage private sector
+real_wages <- log((CES0500000003 / A001RI1Q225SBEA) * 100) # real wages
+Money_stock <- log(M2REAL) # Money stock
+Velocity <- log(M2V) # Velocity of money
+bond_yield <- DAAA # Bond yield
+common_stock_prices <- log(M1125AUSM343NNBR) # Common stock prices
+```
+
+We create a Random walk time series with drift
+```{r 3c}
+
+generateRandomWalk <- function(sim.num) {
+   
+    GNP_sim_rw_drift <- arima.sim(
+        n = sim.num,
+        model = list(order = c(0, 0, 0)), mean = 0.9
+    )
+    
+# Use the command cumsum to convert GNP_sim to a RW
+    GNP_sim_rw_drift_rw <- cumsum(GNP_sim_rw_drift)
+    return(GNP_sim_rw_drift_rw)
+}
+GNP_sim_rw_drift_rw <- generateRandomWalk(1000)
+```
+
+To simplify the procedures we create a dataframe with the data
+```{r 3d}
+
+data <- list(
+    GNP, GNPC96, GNP_GDP_ratio, INDPRO, emp, unemp,
+    GNP_defletor, cons_prices, wages, real_wages,
+    Money_stock, Velocity, bond_yield, common_stock_prices,
+    GNP_sim_rw_drift_rw)
+
+# and we substitute the NA values in each elements of the data with the 0
+
+for (i in 1:length(data)) {
+    for (j in 1:length(data[[i]])) {
+        if (!is.finite(data[[i]][j])) {
+            data[[i]][j] <- 0
+        }
+    }
+}
+```
+
+Now we need a function that compute the standard deviation of each element in the data
+```{r 3e}
+
+stdError <- function(data, i) {
+    return(sqrt(var(data[[i]])))
+}
+
+# we compute the autocorrelation function of the data using acf() and we assigned names to the rows of the matrix using the names of the elements in the vector
+
+generateTable <- function(data) {
+    acf_list <- matrix(NA, nrow = length(data), ncol = 9)
+
+    label <- c(
+        "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
+        "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
+        "Money stock", "Velocity", "Bond yield", "Common stock prices",
+        "Random walk with drift"
+    )
+
+    col.label <- c("Period", "T", "r1", "r2", "r3", "r4", "r5", "r6", "sd")
+    for (i in 1:length(data)) {
+        acf_list[i, 1] <- paste(min(index(data[[i]])), max(index(data[[i]])), sep = " <-> ") # period
+        acf_list[i, 2] <- length(data[[i]]) # sample size
+        acf_list[i, 3:(ncol(acf_list) - 1)] <- round(acf(data[[i]], lag.max = 6, plot = FALSE)$acf[-1], 3) # autocorrelation function
+        acf_list[i, ncol(acf_list)] <- round(stdError(data, i), 3) # standard error
+    }
+    colnames(acf_list) <- col.label
+    rownames(acf_list) <- label
+    return(acf_list)
+}
+
+```
+
+We generate the Table 1: Sample autocorrelation of the data
+```{r 3f}
+acf_autcorr <- generateTable(data)
+View(acf_autcorr)
+```
+
+Then we generate data using the first difference of the data, and we take the first difference of each element of the data and list of the first differences with the same length as the original data
+
+```{r 3g}
+
+firstDiff <- function(data) {
+    first_diff <- list()
+    for (i in 1:(length(data))) {
+        first_diff[[i]] <- diff(data[[i]], lag = 1)
+        
+# replace the NA values in each element of the data with 0
+        for (j in 1:length(data[[i]])) {
+            if (!is.finite(data[[i]][j])) {
+                first_diff[[i]][j] <- 0
+            }
+        }
+    }
+
+ # replace the first element in each element of the first_diff with 0
+    for (i in 1:length(first_diff)) {
+        first_diff[[i]][1] <- 0
+    }
+    return(first_diff)
+}
+
+# recall the function to compute the first difference of the data
+first_diff <- firstDiff(data)
+```
+
+Then we generate the Table2:  the autocorrelation of the first difference of the data
+```{r 3h}
+acf_autcorr_diff <- generateTable(first_diff)
+View(acf_autcorr_diff)
+```
+
+After, we need to define a function AIC_score to compute the AIC on the fitted model
+```{r 3i}
+AIC_score <- function(resid) {
+
+    AIC_score <- log(length(resid)) + 2 * length(resid)
+    return(AIC_score)
+}
+```
+
+And another function that works in this way: given the first difference of the data,select the best ARIMA model for each element of the data with AIC, detrend each element of data with the fitted model of the best ARIMA model, compute the residuals of the data from the fitted model, compute the sample autocorrelation of the residuals, return the sample autocorrelation of the residuals for each element of the data
+
+```{r 3l}
+theUltimateFunction <- function(first_diff) {
+# define a matrix containing the iper-parameters for the best ARIMA model (with min AIC)
+    iper_param <- matrix(NA, nrow = length(first_diff), ncol = 3)
+    
+  # define the vector containing the all possible hyperparameters
+    p <- c(0:3)
+    d <- c(0:3)
+    q <- c(0:3)
+   
+# create a matrix containing all possible combinations of the hyperparameters
+    iper_param_matrix <- matrix(NA,
+        nrow = (length(p) * length(d) * length(q)),
+        ncol = 3)
+
+# create a vector containing the sample autocorrelation of the residuals for each element of the data
+    acf_residuals <- list()
+
+
+# fill the matrix with the possible combinations of the hyperparameters
+    count <- 1
+    for (i in 1:length(p)) {
+        for (j in 1:length(d)) {
+            for (k in 1:length(q)) {
+                iper_param_matrix[count, ] <- c(p[i], d[j], q[k])
+                count <- count + 1
+            }
+        }
+    }
+
+```
+
+
+Now we fit the ARIMA model to each element of the data with 80% of the elements of the data as training data
+```{r 3m}
+for (i in 1:length(first_diff)) {
+        resid_vector <- c()
+ # vector containing the sample autocorrelation of the residuals
+        acf_vector <- list()
+  # AIC vector containing the AIC of the fitted model
+        AIC_vector <- c()
+# vector containing the sum of AIC residuals of the fitted model
+        sum_acf_residuals <- c()
+
+
+# we define the vector containing the 80% of the elements of the data
+        timeserie <- as.vector(first_diff[[i]])
+        train_data <- timeserie[1:(length(timeserie) * 0.8)]
+
+# we transform train_data into a time series
+        train_data <- ts(as.vector(train_data))
+
+# we define the vector containing the 20% of the elements of the data
+        test_data <- timeserie[(length(timeserie) * 0.8) +
+            1:length(timeserie)]
+
+# we transform test_data into a time series
+        test_data <- ts(test_data)
+
+```
+
+    
+Another point is to fit the ARIMA model to the training data with all possible combinations of the hiperparameters given by the matrix iper_param_matrix
+```{r 3n}
+for (j in 1:nrow(iper_param_matrix)) {
+            check <- FALSE
+            print(paste("object:", i, "iper:", j, sep = " "))
+# define the vector containing the iper-parameters
+            iper_param_vector <- iper_param_matrix[j, ]
+# try if the ARIMA will work (convergence problem) otherwise pass
+            check <- tryCatch(
+                {
+# fit the ARIMA model
+                    fitted_model <- arima(train_data,
+                        order = iper_param_vector, method = "ML" )
+# prediction of the fitted model on the test data
+                    predicted <- forecast(model = fitted_model, object = test_data)
+                },
+                error = function(e) {
+# if the ARIMA model does not work, pass
+
+                    return(TRUE)
+                },
+                warning = function(cond) {
+# if the ARIMA model does not work, pass
+
+                    return(TRUE)
+                }
+            )
+            if (class(check) != "logical") {
+                fitted_model <- arima(train_data,
+                    order = iper_param_vector, method = "ML"
+                )
+# prediction of the fitted model on the test data
+                predicted <- forecast(model = fitted_model, object = test_data)
+
+# store the residual in the list resid_vector only if the prediction residuals is not NA
+                resid_vector <- c()
+                for (z in 1:length(predicted$residuals)) {
+                    if (is.finite(predicted$residuals[z])) {
+                        resid_vector <- c(
+                            resid_vector,
+                            as.double(predicted$residuals[z])
+                        )
+                    }
+                }
+
+```
+
+        
+Now we extract the AIC of the fitted model
+```{r 3o}
+   AIC_vector <- c(AIC_vector, AIC_score(resid_vector))
+
+ # tranform the residuals into a time series
+                resid_ts <- c()
+                for (item in 6:length(resid_vector)) {
+                    resid_ts <- c(resid_ts, resid_vector[[item]][1])
+                }
+                resid_ts <- ts(resid_ts)
+# compute the sample autocorrelation of the residuals
+                acf_vector[[j]] <- c(acf(resid_ts,
+                    lag.max = 6,
+                    plot = FALSE
+                )$acf)
+# sum the sample autocorrelation of the residuals
+                sum_acf_residuals <- c(sum_acf_residuals, sum(abs(acf_vector[[j]])))
+            } else {
+                print("ARIMA model does not work")
+            }
+        }
+```
+
+             
+Now we select the best ARIMA model for each element of the data with AIC, we define the vector containing the AIC of the best ARIMA model for each element of the data
+
+Then we define the index of the best ARIMA model which minimizes the sum of the sample autocorrelation of the residuals
+```{r 3p}
+        index_min <- which.min(sum_acf_residuals)
+        print(paste("best index:", index_min, "value:", AIC_vector[index_min], sep = " "))
+# define the vector containing the iper-parameters of the best  ARIMA model for each element of the data
+        iper_param[i, ] <- iper_param_matrix[index_min, ]
+
+# define a vector containing the sample autocorrelation of the residuals of the best ARIMA model for each element of the data
+        acf_residuals[[i]] <- acf_vector[[index_min]]
+    }
+    output <- matrix(NA, nrow = length(first_diff), ncol = 9)
+    for (i in 1:length(first_diff)) {
+        output[i, ] <- c(
+            iper_param[i, ][1],
+            iper_param[i, ][2],
+            iper_param[i, ][3],
+            acf_residuals[[i]][1],
+            acf_residuals[[i]][2],
+            acf_residuals[[i]][3],
+            acf_residuals[[i]][4],
+            acf_residuals[[i]][5],
+            acf_residuals[[i]][6]
+        )
+    }
+```
+
+
+ We give the row names to the output matrix
+```{r 3q}
+
+    rownames(output) <- c(
+        "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
+        "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
+        "Money stock", "Velocity", "Bond yield", "Common stock prices",
+        "Random walk with drift"
+    )
+
+ # give the column names to the output matrix
+    colnames(output) <- c("AR(p)", "MA(d)", "MA(q)", "t1", "t2", "t3", "t4", "t5", "t6")
+
+    return(output)
+}
+
+
+
+```
+
+Finally we generate Table 3: the sample autocorrelation of the residuals of the best ARIMA model
+```{r 3r}
+theUltimateOutput <- theUltimateFunction(first_diff)
+View(theUltimateOutput)
+```
+
+
+Now we need to perform augmented Dickey-Fuller test  on the first_diff data to check if the data is stationary and define the vector containing the results of the Augmented Dickey-Fuller test for each element of the data
+```{r 3s}
+adfTest <- function(data) {
+    test_results <- c()
+    for (i in 1:length(data)) {
+        test_results <- c(test_results, adf.test(data[[i]])$p.value)
+    }
+```
+
+
+In conclusion we generate Table 4: the results of the Augmented Dickey-Fuller test
+```{r 3t}
+   
+    return(test_results)
+}
+
+# call the function to perform the Augmented Dickey-Fuller test
+adf_results <- adfTest(first_diff)
+alpha <- 0.05
+
+# if the data is stationary, the Augmented Dickey-Fuller test will return a p-value less than alpha, otherwise the data is non-stationary
+adf_stationry_results <- c()
+for (i in 1:length(adf_results)) {
+    if (adf_results[i] < alpha) {
+        adf_stationry_results <- c(adf_stationry_results, "Stationary")
+    } else {
+        adf_stationry_results <- c(adf_stationry_results, "Non-stationary")
+    }
+}
+adf_matrix_output <- matrix(NA, nrow = length(first_diff), ncol = 2)
+for (i in 1:length(first_diff)) {
+    adf_matrix_output[i, ] <- c(adf_results[i], adf_stationry_results[[i]])
+}
+```
+ 
+Now we give the row names to the output matrix
+```{r 3v}
+rownames(adf_matrix_output) <- c(
+    "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
+    "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
+    "Money stock", "Velocity", "Bond yield", "Common stock prices",
+    "Random walk with drift")
+
+# give the column names to the output matrix
+colnames(adf_matrix_output) <- c("p-value", "Stationary or Non-stationary")
+View(adf_matrix_output)
+```
+
 
 
 
