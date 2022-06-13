@@ -449,9 +449,147 @@ dgs2fit=armafit(DGS2, order)
 stargazer(dgs2fit, type="text")
 
 
-dgs2pred=predict(dgs2fit, n.ahead=length(DGS2))
-plot(DGS2)
-dgs2pred=as.xts(dgs2pred)
-time=c(1:length(dgs2pred$pred))
-lines(time,dgs2pred$pred, col="red")
+
+
+#Same Procedure for DGS2
+dgs2train=DGS2[1:(length(DGS2)*0.8)]
+dgs2test=DGS2[((length(DGS2)*0.8)+1):length(DGS2)]
+
+order=ordercomb[1,]
+fit=armafit(dgs2train,order)
+fitpred=predict(fit,n.ahead=length(dgs2test), interval="confidence")
+mae=mae(dgs2test,fitpred$pred)
+rmse=rmse(dgs2test,fitpred$pred)
+
+
+maelist=c()
+rmselist=c()
+aiclist=c()
+biclist=c()
+for (c in 1:nrow(ordercomb)){
+  order=ordercomb[c,]
+  fit=armafit(dgs2train,order)
+  fitpred=predict(fit,n.ahead=length(dgs2test), interval="confidence")
+  maelist[c]=mae(dgs2test,fitpred$pred)
+  rmselist[c]=rmse(dgs2test,fitpred$pred)
+  aiclist[c]=-1*AIC(fit)
+  biclist[c]=-1*BIC(fit)
+}
+
+errorlist=cbind(maelist, rmselist, aiclist, biclist)
+which.min(errorlist[,1])
+which.min(errorlist[,2])
+which.min(errorlist[,3])
+which.min(errorlist[,4])
+
+
+plot(maelist, type= "h")
+plot(rmselist, type="h")
+plot(aiclist, type= "h")
+plot(biclist, type="h")
+
+
+order=c(1,0,1)
+dgs2fit=armafit(DGS2, order)
+stargazer(dgs2fit, type="text")
+
+
+
+
+#Same Procedure for DGS2
+dgs2train=DGS2[1:(length(DGS2)*0.8)]
+dgs2test=DGS2[((length(DGS2)*0.8)+1):length(DGS2)]
+
+order=ordercomb[1,]
+fit=armafit(dgs2train,order)
+fitpred=predict(fit,n.ahead=length(dgs2test), interval="confidence")
+mae=mae(dgs2test,fitpred$pred)
+rmse=rmse(dgs2test,fitpred$pred)
+
+
+maelist=c()
+rmselist=c()
+aiclist=c()
+biclist=c()
+for (c in 1:nrow(ordercomb)){
+  order=ordercomb[c,]
+  fit=armafit(dgs2train,order)
+  fitpred=predict(fit,n.ahead=length(dgs2test), interval="confidence")
+  maelist[c]=mae(dgs2test,fitpred$pred)
+  rmselist[c]=rmse(dgs2test,fitpred$pred)
+  aiclist[c]=-1*AIC(fit)
+  biclist[c]=-1*BIC(fit)
+}
+
+errorlist=cbind(maelist, rmselist, aiclist, biclist)
+which.min(errorlist[,1])
+which.min(errorlist[,2])
+which.min(errorlist[,3])
+which.min(errorlist[,4])
+
+
+plot(maelist, type= "h")
+plot(rmselist, type="h")
+plot(aiclist, type= "h")
+plot(biclist, type="h")
+
+
+order=c(1,0,1)
+dgs2fit=armafit(DGS2, order)
+stargazer(dgs2fit, type="text")
+
+#Same Procedure for DGS10
+dgs10train=DGS10[1:(length(DGS10)*0.8)]
+dgs10test=DGS10[((length(DGS10)*0.8)+1):length(DGS10)]
+
+order=ordercomb[1,]
+fit=armafit(dgs10train,order)
+fitpred=predict(fit,n.ahead=length(dgs10test), interval="confidence")
+mae=mae(dgs10test,fitpred$pred)
+rmse=rmse(dgs10test,fitpred$pred)
+
+
+maelist=c()
+rmselist=c()
+aiclist=c()
+biclist=c()
+for (c in 1:(nrow(ordercomb)-1)){
+  order=ordercomb[c,]
+  fit=armafit(dgs10train,order)
+  fitpred=predict(fit,n.ahead=length(dgs10test), interval="confidence")
+  maelist[c]=mae(dgs10test,fitpred$pred)
+  rmselist[c]=rmse(dgs10test,fitpred$pred)
+  aiclist[c]=-1*AIC(fit)
+  biclist[c]=-1*BIC(fit)
+}
+
+errorlist=cbind(maelist, rmselist, aiclist, biclist)
+which.min(errorlist[,1])
+which.min(errorlist[,2])
+which.min(errorlist[,3])
+which.min(errorlist[,4])
+
+ordercomb
+
+plot(maelist, type= "h")
+plot(rmselist, type="h")
+plot(aiclist, type= "h")
+plot(biclist, type="h")
+
+
+order=c(2,0,1)
+dgs10fit=armafit(DGS10, order)
+stargazer(dgs10fit, type="text")
+
+
+#After having chosen the three models we are going to use, we perform
+#the Dickey-Fueller test
+
+adf.test(DTB3)
+adf.test(DGS2)
+adf.test(DGS10)
+
+#We conclude that all three time series are stationary
+
+
 
