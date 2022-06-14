@@ -314,6 +314,9 @@ cbind(maemean,rmsemean)
 ```{r 3aa, echo=FALSE}
 # load package:
 library(prediction)
+library(quantmod)
+library(tseries)
+library(forecast)
 ```
 
 
@@ -390,6 +393,11 @@ stdError <- function(data, i) {
     return(sqrt(var(data[[i]])))
 }
 
+
+```
+
+We generate the Table 1: Sample autocorrelation of the data
+```{r 3f}
 # we compute the autocorrelation function of the data using acf() and we assigned names to the rows of the matrix using the names of the elements in the vector
 
 generateTable <- function(data) {
@@ -414,10 +422,6 @@ generateTable <- function(data) {
     return(acf_list)
 }
 
-```
-
-We generate the Table 1: Sample autocorrelation of the data
-```{r 3f}
 acf_autcorr <- generateTable(data)
 View(acf_autcorr)
 ```
@@ -497,12 +501,11 @@ theUltimateFunction <- function(first_diff) {
         }
     }
 
-```
 
 
-Now we fit the ARIMA model to each element of the data with 80% of the elements of the data as training data
-```{r 3m}
-for (i in 1:length(first_diff)) {
+
+# Now we fit the ARIMA model to each element of the data with 80% of the elements of the data as training data
+  for (i in 1:length(first_diff)) {
         resid_vector <- c()
  # vector containing the sample autocorrelation of the residuals
         acf_vector <- list()
@@ -526,12 +529,12 @@ for (i in 1:length(first_diff)) {
 # we transform test_data into a time series
         test_data <- ts(test_data)
 
-```
+
 
     
-Another point is to fit the ARIMA model to the training data with all possible combinations of the hiperparameters given by the matrix iper_param_matrix
-```{r 3n}
-for (j in 1:nrow(iper_param_matrix)) {
+# Another point is to fit the ARIMA model to the training data with all possible combinations of the hiperparameters given by the matrix iper_param_matrix
+
+  for (j in 1:nrow(iper_param_matrix)) {
             check <- FALSE
             print(paste("object:", i, "iper:", j, sep = " "))
 # define the vector containing the iper-parameters
@@ -574,11 +577,11 @@ for (j in 1:nrow(iper_param_matrix)) {
                     }
                 }
 
-```
+
 
         
-Now we extract the AIC of the fitted model
-```{r 3o}
+# Now we extract the AIC of the fitted model
+
    AIC_vector <- c(AIC_vector, AIC_score(resid_vector))
 
  # tranform the residuals into a time series
@@ -598,13 +601,12 @@ Now we extract the AIC of the fitted model
                 print("ARIMA model does not work")
             }
         }
-```
 
              
-Now we select the best ARIMA model for each element of the data with AIC, we define the vector containing the AIC of the best ARIMA model for each element of the data
+# Now we select the best ARIMA model for each element of the data with AIC, we define the vector containing the AIC of the best ARIMA model for each element of the data
 
-Then we define the index of the best ARIMA model which minimizes the sum of the sample autocorrelation of the residuals
-```{r 3p}
+# Then we define the index of the best ARIMA model which minimizes the sum of the sample autocorrelation of the residuals
+
         index_min <- which.min(sum_acf_residuals)
         print(paste("best index:", index_min, "value:", AIC_vector[index_min], sep = " "))
 # define the vector containing the iper-parameters of the best  ARIMA model for each element of the data
@@ -627,11 +629,10 @@ Then we define the index of the best ARIMA model which minimizes the sum of the 
             acf_residuals[[i]][6]
         )
     }
-```
 
 
- We give the row names to the output matrix
-```{r 3q}
+#  We give the row names to the output matrix
+
 
     rownames(output) <- c(
         "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
