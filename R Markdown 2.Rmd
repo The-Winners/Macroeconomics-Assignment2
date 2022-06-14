@@ -661,11 +661,11 @@ adfTest <- function(data) {
     for (i in 1:length(data)) {
         test_results <- c(test_results, adf.test(data[[i]])$p.value)
     }
-```
 
 
-In conclusion we generate Table 4: the results of the Augmented Dickey-Fuller test (to check the stationarity)
-```{r 3t}
+
+# In conclusion we generate Table 4: the results of the Augmented Dickey-Fuller test (to check the stationarity)
+
    
     return(test_results)
 }
