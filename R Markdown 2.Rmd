@@ -472,24 +472,39 @@ And another function that works in this way: given the first difference of the d
 
 ```{r 3l}
 theUltimateFunction <- function(first_diff) {
-# define a matrix containing the iper-parameters for the best ARIMA model (with min AIC)
+
+    # given the first difference of the data,
+    # select the best ARIMA model for each element of the data with AIC
+    # detrend each element of data with the fitted model of the best ARIMA model
+    # compute the residuals of the data from the fitted model
+    # compute the sample autocorrelation of the residuals
+    # return the sample autocorrelation of the residuals
+    # for each element of the data
+
+    # define a matrix containing the iper-parameters
+    # for the best ARIMA model (with min AIC)
     iper_param <- matrix(NA, nrow = length(first_diff), ncol = 3)
-    
-  # define the vector containing the all possible hyperparameters
+
+    # define the vector containing the all possible iper-parameters
     p <- c(0:3)
     d <- c(0:3)
     q <- c(0:3)
-   
-# create a matrix containing all possible combinations of the hyperparameters
+
+    # create a matrix containing all possible combinations
+    # of the iper-parameters
     iper_param_matrix <- matrix(NA,
         nrow = (length(p) * length(d) * length(q)),
-        ncol = 3)
+        ncol = 3
+    )
 
-# create a vector containing the sample autocorrelation of the residuals for each element of the data
+    # create a vector containing the sample autocorrelation of
+    # the residuals for each element of the data
     acf_residuals <- list()
 
 
-# fill the matrix with the possible combinations of the hyperparameters
+
+
+    # fill the matrix with the possible combinations of the iper-parameters
     count <- 1
     for (i in 1:length(p)) {
         for (j in 1:length(d)) {
@@ -500,60 +515,63 @@ theUltimateFunction <- function(first_diff) {
         }
     }
 
+    # fit the ARIMA model to each element of the data with 80%
+    # of the elements of the data as training data
 
-
-
-# Now we fit the ARIMA model to each element of the data with 80% of the elements of the data as training data
     for (i in 1:length(first_diff)) {
         resid_vector <- c()
- # vector containing the sample autocorrelation of the residuals
+        # vector containing the sample autocorrelation of the residuals
         acf_vector <- list()
-  # AIC vector containing the AIC of the fitted model
+        # AIC vector containing the AIC of the fitted model
         AIC_vector <- c()
-# vector containing the sum of AIC residuals of the fitted model
+        # vector containing the sum of AIC residuals of the fitted model
         sum_acf_residuals <- c()
 
 
-# we define the vector containing the 80% of the elements of the data
+        # define the vector containing the 80% of the elements of the data
         timeserie <- as.vector(first_diff[[i]])
         train_data <- timeserie[1:(length(timeserie) * 0.8)]
 
-# we transform train_data into a time series
+        # transform train_data into a time series
         train_data <- ts(as.vector(train_data))
 
-# we define the vector containing the 20% of the elements of the data
+        # define the vector containing the 20% of the elements of the data
         test_data <- timeserie[(length(timeserie) * 0.8) +
             1:length(timeserie)]
 
-# we transform test_data into a time series
+        # transform test_data into a time series
         test_data <- ts(test_data)
 
 
 
-    
-# Another point is to fit the ARIMA model to the training data with all possible combinations of the hiperparameters given by the matrix iper_param_matrix
+        # fit the ARIMA model to the training data with all
+        # possible combinations of the iper-parameters given
+        # by the matrix iper_param_matrix
 
-  for (j in 1:nrow(iper_param_matrix)) {
+        for (j in 1:nrow(iper_param_matrix)) {
             check <- FALSE
             print(paste("object:", i, "iper:", j, sep = " "))
-# define the vector containing the iper-parameters
+            # define the vector containing the iper-parameters
             iper_param_vector <- iper_param_matrix[j, ]
-# try if the ARIMA will work (convergence problem) otherwise pass
+            # try if the ARIMA will work (convergence problem) otherwise pass
             check <- tryCatch(
                 {
-# fit the ARIMA model
+                    # fit the ARIMA model
                     fitted_model <- arima(train_data,
-                        order = iper_param_vector, method = "ML" )
-# prediction of the fitted model on the test data
+                        order = iper_param_vector, method = "ML"
+                    )
+                    # prediction of the fitted model on the test data
                     predicted <- forecast(model = fitted_model, object = test_data)
                 },
                 error = function(e) {
-# if the ARIMA model does not work, pass
+                    # if the ARIMA model does not work,
+                    # pass
 
                     return(TRUE)
                 },
                 warning = function(cond) {
-# if the ARIMA model does not work, pass
+                    # if the ARIMA model does not work,
+                    # pass
 
                     return(TRUE)
                 }
@@ -562,10 +580,11 @@ theUltimateFunction <- function(first_diff) {
                 fitted_model <- arima(train_data,
                     order = iper_param_vector, method = "ML"
                 )
-# prediction of the fitted model on the test data
+                # prediction of the fitted model on the test data
                 predicted <- forecast(model = fitted_model, object = test_data)
 
-# store the residual in the list resid_vector only if the prediction residuals is not NA
+                # store the residual in the list resid_vector only if the
+                # prediction residuals is not NA
                 resid_vector <- c()
                 for (z in 1:length(predicted$residuals)) {
                     if (is.finite(predicted$residuals[z])) {
@@ -576,42 +595,43 @@ theUltimateFunction <- function(first_diff) {
                     }
                 }
 
+                # extrat the AIC of the fitted model
+                AIC_vector <- c(AIC_vector, AIC_score(resid_vector))
 
-
-        
-# Now we extract the AIC of the fitted model
-
-   AIC_vector <- c(AIC_vector, AIC_score(resid_vector))
-
- # tranform the residuals into a time series
+                # tranform the residuals into a time series
                 resid_ts <- c()
                 for (item in 6:length(resid_vector)) {
                     resid_ts <- c(resid_ts, resid_vector[[item]][1])
                 }
                 resid_ts <- ts(resid_ts)
-# compute the sample autocorrelation of the residuals
+                # compute the sample autocorrelation of the residuals
                 acf_vector[[j]] <- c(acf(resid_ts,
                     lag.max = 6,
                     plot = FALSE
                 )$acf)
-# sum the sample autocorrelation of the residuals
+                # sum the sample autocorrelation of the residuals
                 sum_acf_residuals <- c(sum_acf_residuals, sum(abs(acf_vector[[j]])))
             } else {
                 print("ARIMA model does not work")
             }
         }
 
-             
-# Now we select the best ARIMA model for each element of the data with AIC, we define the vector containing the AIC of the best ARIMA model for each element of the data
+        # select the best ARIMA model for each element of the data with AIC
+        # define the vector containing the AIC of the best ARIMA model
+        # for each element of the data
 
-# Then we define the index of the best ARIMA model which minimizes the sum of the sample autocorrelation of the residuals
+
+        # define the index of the best ARIMA model
+        # which minimizes the sum of the sample autocorrelation of the residuals
 
         index_min <- which.min(sum_acf_residuals)
         print(paste("best index:", index_min, "value:", AIC_vector[index_min], sep = " "))
-# define the vector containing the iper-parameters of the best  ARIMA model for each element of the data
+        # define the vector containing the iper-parameters of the best
+        # ARIMA model for each element of the data
         iper_param[i, ] <- iper_param_matrix[index_min, ]
 
-# define a vector containing the sample autocorrelation of the residuals of the best ARIMA model for each element of the data
+        # define a vector containting the sample autocorrelation of the residuals
+        # of the best ARIMA model for each element of the data
         acf_residuals[[i]] <- acf_vector[[index_min]]
     }
     output <- matrix(NA, nrow = length(first_diff), ncol = 9)
@@ -628,28 +648,24 @@ theUltimateFunction <- function(first_diff) {
             acf_residuals[[i]][6]
         )
     }
-
-
-#  We give the row names to the output matrix
-
-
+    # give the row names to the output matrix
     rownames(output) <- c(
         "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
         "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
         "Money stock", "Velocity", "Bond yield", "Common stock prices",
-        "Random walk with drift")
+        "Random walk with drift"
+    )
 
- # give the column names to the output matrix
+    # give the column names to the output matrix
     colnames(output) <- c("AR(p)", "MA(d)", "MA(q)", "t1", "t2", "t3", "t4", "t5", "t6")
 
     return(output)
 }
 
-
-# Finally we generate Table 3: the sample autocorrelation of the residuals of the best ARIMA model
-
 theUltimateOutput <- theUltimateFunction(first_diff)
+# table 3 - the sample autocorrelation of the residuals of the best ARIMA model
 View(theUltimateOutput)
+
 ```
 
 
