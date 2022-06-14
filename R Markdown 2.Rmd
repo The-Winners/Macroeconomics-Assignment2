@@ -312,11 +312,6 @@ cbind(maemean,rmsemean)
 
 ## Q3: Nelson Plosser data
 ```{r 3aa, echo=FALSE}
-# Clear the variables
-rm(list = ls())
-
-# Set the working directory to source file location with
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Load packages
 library(quantmod)
