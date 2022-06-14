@@ -505,7 +505,7 @@ theUltimateFunction <- function(first_diff) {
 
 
 # Now we fit the ARIMA model to each element of the data with 80% of the elements of the data as training data
-  for (i in 1:length(first_diff)) {
+    for (i in 1:length(first_diff)) {
         resid_vector <- c()
  # vector containing the sample autocorrelation of the residuals
         acf_vector <- list()
@@ -645,10 +645,10 @@ theUltimateFunction <- function(first_diff) {
 
     return(output)
 }
-```
 
-Finally we generate Table 3: the sample autocorrelation of the residuals of the best ARIMA model
-```{r 3r}
+
+# Finally we generate Table 3: the sample autocorrelation of the residuals of the best ARIMA model
+
 theUltimateOutput <- theUltimateFunction(first_diff)
 View(theUltimateOutput)
 ```
