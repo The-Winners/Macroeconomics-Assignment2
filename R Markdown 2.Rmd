@@ -452,10 +452,9 @@ firstDiff <- function(data) {
 
 # recall the function to compute the first difference of the data
 first_diff <- firstDiff(data)
-```
 
-Then we generate the Table2:  the autocorrelation of the first difference of the data
-```{r 3h}
+# Then we generate the Table2:  the autocorrelation of the first difference of the data
+
 acf_autcorr_diff <- generateTable(first_diff)
 View(acf_autcorr_diff)
 ```
