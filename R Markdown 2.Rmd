@@ -637,17 +637,13 @@ Then we define the index of the best ARIMA model which minimizes the sum of the 
         "GNP", "Real GNP", "GNP GDP ratio", "Industrial Production", "Employment",
         "Unemployment rate", "GNP deflator", "Consumer prices", "Wages", "Real wages",
         "Money stock", "Velocity", "Bond yield", "Common stock prices",
-        "Random walk with drift"
-    )
+        "Random walk with drift")
 
  # give the column names to the output matrix
     colnames(output) <- c("AR(p)", "MA(d)", "MA(q)", "t1", "t2", "t3", "t4", "t5", "t6")
 
     return(output)
 }
-
-
-
 ```
 
 Finally we generate Table 3: the sample autocorrelation of the residuals of the best ARIMA model
@@ -667,7 +663,7 @@ adfTest <- function(data) {
 ```
 
 
-In conclusion we generate Table 4: the results of the Augmented Dickey-Fuller test
+In conclusion we generate Table 4: the results of the Augmented Dickey-Fuller test (to check the stationarity)
 ```{r 3t}
    
     return(test_results)
@@ -909,17 +905,14 @@ dgs10fit=armafit(DGS10, order)
 stargazer(dgs10fit, type="text")
 ```
 
-After having chosen the three models we are going to use, we perform the Dickey-Fueller test
+After having chosen the three models we are going to use, we perform the Dickey-Fueller test. To sum up we can conclude that all three time series are stationary.
 ```{r 4i}
-
 adf.test(DTB3)
 adf.test(DGS2)
 adf.test(DGS10)
 ```
 
-To sum up we can conclude that all three time series are stationary.
-
-Now check stationarity of the term spread and the recession indicator
+Now we check the stationarity of the term spread and the recession indicator
 ```{r 4l}
 
 modelterm=lm(DGS10 ~ DTB3[2087:length(DTB3)])
